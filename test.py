@@ -1,30 +1,15 @@
 import requests
+import gradio as gr
 
-# Define the base URL for your Flask app
-base_url = "https://backendbuisness.meetsonawane.repl.co"  # Replace with your actual Flask app's URL
+# Fetch the audio file
+response_0 = requests.get("https://github.com/gradio-app/gradio/raw/main/test/test_files/audio_sample.wav")
+example_audio = response_0.content
 
-# Example data for creating a user
-user_data = {
-    "email": "newusssser@example.com",
-    "password": "newpasswosssrd"
-}
+# Define the Gradio app and specify the source type as "huggingface"
+app = gr.Interface.load("https://cliphamper-openai-whisper-medium.hf.space/", source="huggingface")
 
-# Send a POST request to create a user
-response = requests.post(f"{base_url}/create_users", json=user_data)
+# Make a prediction using the Gradio app
+result = app.predict([example_audio])
 
-# Check if the request was successful
-if response.status_code == 200:
-    print("User created successfully")
-else:
-    print("Error:", response.text)
-
-# Send a GET request to fetch users
-response = requests.get(f"{base_url}/fetch_users")
-
-# Check if the request was successful
-if response.status_code == 200:
-    users = response.json()
-    print(users)
-  
-else:
-    print("Error:", response.text)
+# Print the result
+print(result[0])
