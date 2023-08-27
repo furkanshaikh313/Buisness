@@ -1,17 +1,9 @@
 from flask import Flask, render_template, request, redirect, session
+from data.user import fetch_user, create_user
+from authentication.user import validate_user
 
 app = Flask(__name__)
-
-# Replace this dictionary with a proper user database or authentication mechanism
-users = {
-    "user@example.com": "password123",
-    "anotheruser@example.com": "securepassword"
-}
-
-def validate_user(email, password):
-    if email in users and users[email] == password:
-        return True
-    return False
+app.secret_key = "testv1"
 
 @app.route("/")
 def index():
@@ -24,7 +16,7 @@ def index():
 def dashboard():
     if "user_email" not in session:
         return redirect("/login")  # Redirect to login if user is not authenticated
-
+  
     return render_template("dashboard.html")
 
 @app.route("/login", methods=["GET", "POST"])
@@ -43,6 +35,19 @@ def login():
             return "Invalid credentials. Please try again."
 
     return render_template("login.html")
+
+@app.route("/register", methods=["GET", "POST"])
+def register():    
+    if request.method == "POST":
+        email = request.form["email"]
+        password = request.form["password"]
+        
+        create_user(email=email, passw=password)
+        if validate_user(email, password):
+            session["user_email"] = email
+            return redirect("/dashboard")  # Redirect to the user's dashboard page
+        
+    return render_template("register.html")
 
 if __name__ == "__main__":
     app.debug = True  # Enable debugging
